@@ -1,51 +1,133 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Clasificador de Insectos</title>
-  <script>
-    function clasificarInsecto(event) {
-      event.preventDefault();
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clasificador de Insectos</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f4f8;
+        margin: 0;
+        padding: 0;
+      }
 
-      const abdomen = parseFloat(document.getElementById('abdomen').value);
-      const antena  = parseFloat(document.getElementById('antena').value);
+      .container {
+        max-width: 400px;
+        margin: 80px auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
 
-      fetch('/predict', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          features: [abdomen, antena]
+      h1 {
+        text-align: center;
+        color: #333333;
+      }
+
+      label {
+        display: block;
+        margin-top: 20px;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #444;
+      }
+
+      input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+      }
+
+      button {
+        width: 100%;
+        margin-top: 30px;
+        padding: 12px;
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #004c99;
+      }
+
+      #resultado {
+        margin-top: 25px;
+        padding: 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .resultado-ok {
+        background-color: #e6f4ea;
+        color: #2e7d32;
+        border-left: 5px solid #2e7d32;
+      }
+
+      .resultado-error {
+        background-color: #fdecea;
+        color: #c62828;
+        border-left: 5px solid #c62828;
+      }
+    </style>
+    <script>
+      function clasificarInsecto(event) {
+        event.preventDefault();
+
+        const abdomen = parseFloat(document.getElementById("abdomen").value);
+        const antena = parseFloat(document.getElementById("antena").value);
+
+        fetch("/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            features: [abdomen, antena],
+          }),
         })
-      })
-      .then(resp => resp.json())
-      .then(data => {
-        if (data.error) {
-          document.getElementById('resultado').innerText = 'Error: ' + data.error;
-        } else {
-          document.getElementById('resultado').innerText = 
-            'El insecto es un ' + data.prediction;
-        }
-      })
-      .catch(err => {
-        document.getElementById('resultado').innerText = 'Error en la petición.';
-        console.error(err);
-      });
-    }
-  </script>
-</head>
-<body>
-  <h1>Clasificador de Insectos</h1>
-  <form onsubmit="clasificarInsecto(event)">
-    <label for="abdomen">Longitud del Abdomen:</label>
-    <input type="number" step="any" id="abdomen" required><br><br>
+          .then((resp) => resp.json())
+          .then((data) => {
+            const resultado = document.getElementById("resultado");
+            if (data.error) {
+              resultado.innerText = "Error: " + data.error;
+              resultado.className = "resultado-error";
+            } else {
+              resultado.innerText = "El insecto es: " + data.prediction;
+              resultado.className = "resultado-ok";
+            }
+          })
+          .catch((err) => {
+            const resultado = document.getElementById("resultado");
+            resultado.innerText = "Error en la petición.";
+            resultado.className = "resultado-error";
+            console.error(err);
+          });
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Clasificador de Insectos</h1>
+      <form onsubmit="clasificarInsecto(event)">
+        <label for="abdomen">Longitud del Abdomen:</label>
+        <input type="number" step="any" id="abdomen" required />
 
-    <label for="antena">Longitud de la Antena:</label>
-    <input type="number" step="any" id="antena" required><br><br>
+        <label for="antena">Longitud de la Antena:</label>
+        <input type="number" step="any" id="antena" required />
 
-    <button type="submit">Clasificar</button>
-  </form>
+        <button type="submit">Clasificar</button>
+      </form>
 
-  <p id="resultado" style="font-weight:bold;margin-top:1em;"></p>
-</body>
+      <p id="resultado"></p>
+    </div>
+  </body>
 </html>
